@@ -14,10 +14,10 @@ func mergeChan(mergeTo chan int, from ...chan int) {
 	wg.Add(len(from))
 
 	for _, ch := range from {
-		go func(ch chan int) {
+		go func(c <-chan int) {
 			defer wg.Done()
-			for val := range ch {
-				mergeTo <- val
+			for v := range c {
+				mergeTo <- v
 			}
 		}(ch)
 	}
@@ -73,9 +73,9 @@ func main() {
 		fmt.Println(val)
 	}
 
-	// Для mergeChan2
-	mergedChan2 := mergeChan2(ch1, ch2, ch3)
-	for val := range mergedChan2 {
-		fmt.Println(val)
-	}
+	// // Для mergeChan2
+	// mergedChan2 := mergeChan2(ch1, ch2, ch3)
+	// for val := range mergedChan2 {
+	// 	fmt.Println(val)
+	// }
 }

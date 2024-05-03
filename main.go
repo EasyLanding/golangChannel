@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"sync"
+	"time"
 )
 
 func HelloWorld() string {
@@ -61,6 +62,19 @@ func generateChan(n int) chan int {
 	return ch
 }
 
+func generateData(n int) chan int {
+	dataChan := make(chan int)
+
+	go func() {
+		defer close(dataChan)
+		for i := 0; i < n; i++ {
+			dataChan <- i
+		}
+	}()
+
+	return dataChan
+}
+
 func main() {
 	ch1 := generateChan(3)
 	ch2 := generateChan(4)
@@ -74,8 +88,17 @@ func main() {
 	}
 
 	// // Для mergeChan2
-	// mergedChan2 := mergeChan2(ch1, ch2, ch3)
-	// for val := range mergedChan2 {
-	// 	fmt.Println(val)
-	// }
+	mergedChan2 := mergeChan2(ch1, ch2, ch3)
+	for val := range mergedChan2 {
+		fmt.Println(val)
+	}
+
+	data := generateData(10)
+	go func() {
+		time.Sleep(1 * time.Second) // ждем одну секунду, чтобы горутина main успела выполниться
+		close(data)
+	}()
+	for num := range data {
+		fmt.Println(num)
+	}
 }

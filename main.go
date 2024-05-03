@@ -75,6 +75,33 @@ func generateData(n int) chan int {
 	return dataChan
 }
 
+func trySend(ch chan int, v int) bool {
+	select {
+	case ch <- v:
+		return true
+	default:
+		return false
+	}
+}
+
+func timeout(timeout time.Duration) func() bool {
+	ch := make(chan struct{})
+
+	go func() {
+		time.Sleep(timeout)
+		close(ch)
+	}()
+
+	return func() bool {
+		select {
+		case <-ch:
+			return false
+		default:
+			return true
+		}
+	}
+}
+
 func main() {
 	ch1 := generateChan(3)
 	ch2 := generateChan(4)
@@ -100,5 +127,38 @@ func main() {
 	}()
 	for num := range data {
 		fmt.Println(num)
+	}
+
+	ch := make(chan int, 1)
+
+	// Попытка отправить значение в канал
+	fmt.Println("Попытка отправить значение 42 в канал...")
+	if trySend(ch, 42) {
+		fmt.Println("Значение успешно отправлено в канал.")
+	} else {
+		fmt.Println("Не удалось отправить значение в канал, так как он заполнен.")
+	}
+
+	// Попытка отправить другое значение в канал
+	fmt.Println("Попытка отправить значение 100 в канал...")
+	if trySend(ch, 100) {
+		fmt.Println("Значение успешно отправлено в канал.")
+	} else {
+		fmt.Println("Не удалось отправить значение в канал, так как он заполнен.")
+	}
+
+	timeoutFunc := timeout(3 * time.Second)
+	since := time.NewTimer(3050 * time.Millisecond)
+	for {
+		select {
+		case <-since.C:
+			fmt.Println("Функция не выполнена вовремя")
+			return
+		default:
+			if timeoutFunc() {
+				fmt.Println("Функция выполнена вовремя")
+				return
+			}
+		}
 	}
 }

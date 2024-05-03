@@ -20,17 +20,17 @@ func TestHelloWorldFunc(t *testing.T) {
 }
 
 func TestGenerateData(t *testing.T) {
- data := generateData(5)
+	data := generateData(5)
 
- count := 0
- for num := range data {
-  if num != count {
-   t.Errorf("Expected %d, but got %d", count, num)
-  }
-  count++
- }
+	count := 0
+	for num := range data {
+		if num != count {
+			t.Errorf("Expected %d, but got %d", count, num)
+		}
+		count++
+	}
 
- if count != 5 {
-  t.Errorf("Expected 5 numbers, but got %d", count)
- }
+	if count != 5 {
+		t.Errorf("Expected 5 numbers, but got %d", count)
+	}
 }
